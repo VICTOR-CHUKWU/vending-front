@@ -1,0 +1,82 @@
+.login {
+    background-image: url('/img/signup.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100vh;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(10, 10, 43, 0.6);
+        z-index: 1;
+    }
+
+    &__backdrop {
+        width: 29.5rem;
+        height: 43rem;
+        overflow-y: auto;
+        position: relative;
+        z-index: 2;
+    }
+}
+
+.double-side-border {
+    position: relative;
+
+    &::after {
+        content: '';
+        position: absolute;
+        z-index: 1;
+        width: 45%;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 1px;
+        background-color: #ccc;
+    }
+
+    &::before {
+        content: '';
+        position: absolute;
+        z-index: 1;
+        width: 45%;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 1px;
+        background-color: #ccc;
+    }
+}
+
+.signin {
+    background-image: url('/img/signup.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100vh;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(10, 10, 43, 0.6);
+        z-index: 1;
+    }
+
+    &__backdrop {
+        width: 34.5rem;
+        min-height: 55vh;
+        overflow-y: auto;
+        max-height: 94vh;
+        position: relative;
+        z-index: 2;
+    }
+}

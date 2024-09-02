@@ -1,113 +1,169 @@
+"use client";
+import { Loader, showAlert, SmallLoader } from "@/components/shared";
+import { useCart, useGetProducts, useUser } from "@/hooks/swrhooks";
 import Image from "next/image";
+import Link from "next/link";
+import moment from "moment";
+import { TProduct } from "@/types/product";
+import { useState } from "react";
+import { errorToast, successToast } from "@/utils";
+import { resetCoin } from "@/services/user";
 
 export default function Home() {
+  const { user, isLoading, updateUser } = useUser();
+  const { products, productLoading } = useGetProducts();
+  const [actionLoad, setActionLoad] = useState(false);
+  const { cart, addToCartItem } = useCart();
+
+  const handleAddToCart = (product: TProduct) => {
+    addToCartItem({
+      ...product,
+      qty: 1,
+    });
+  };
+
+  const handleReset = async () => {
+    setActionLoad(true)
+    try {
+      const resp = await resetCoin(user?.id as string)
+      if(resp.success){
+        updateUser(resp.data)
+        successToast(resp.message)
+      }
+    } catch (error: any) {
+      errorToast('could not reset coin');
+    } finally {
+      setActionLoad(false);
+    }
+  };
+
+  const resetUserCoin = () => {
+    showAlert({
+      title: `Reset Coin`,
+      text: `Do you want to reset your coin?`,
+      icon: "warning",
+      confirmButtonText: "Reset",
+      cancelButtonText: "Cancel",
+      showCancel: true,
+      customFunction: handleReset,
+    });
+  }
+
+  if (isLoading) {
+    return (
+      <div className=" h-screen flex items-center flex-col justify-center bg-white">
+        <Loader />
+      </div>
+    );
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    <main className=" pt-40 lg:pt-32">
+      <section className=" container">
+        <h2 className=" font-semibold text-xl lg:text-4xl flex items-center justify-between flex-wrap">
+          Welcome {user?.firstName} {user?.lastName}
 
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+          {
+            user && user.role.toLowerCase() === 'buyer' && (
+              <button
+                onClick={() => resetUserCoin()}
+                className=" bg-blue-950 text-white w-28 h-10 flex items-center justify-center text-sm font-normal rounded-lg outline-none border-0 cursor-pointer"
+              >
+               {
+                actionLoad ? <SmallLoader /> : ' Reset Coin'
+               }
+              </button>
+            )
+          }
+        </h2>
+        {productLoading ? (
+          <div className=" flex items-center flex-col justify-center h-[40vh]">
+            <Loader text="Loading products..." />
+          </div>
+        ) : (
+          <div>
+            {!products || products.data.length === 0 ? (
+              <div>no product found</div>
+            ) : (
+              <div className=" mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {products.data.map((product) => {
+                  const isInCart = cart?.some((item) => item.id === product.id);
+                  return (
+                    <div key={product.id}>
+                      <div className=" transition-all duration-300 hover:shadow-md rounded-lg p-5 bg-white shadow-lg text-black">
+                        <div className=" relative w-full h-40 rounded-lg overflow-hidden mb-2">
+                          <Image
+                            src={`/img/signup.jpg`}
+                            alt="product"
+                            layout="fill"
+                            objectFit="cover"
+                          />
+                        </div>
+                        <div className=" flex flex-col gap-4">
+                          <h3 className=" text-xl font-medium">
+                            {product.productName}
+                          </h3>
+                          <div className=" flex items-center gap-2">
+                            <p>vendor:</p>
+                            <p className=" bg-orange-500 text-white py-1 px-2 rounded-lg text-sm">
+                              Amaka olinya
+                            </p>
+                          </div>
+                          <div className=" flex items-center gap-2">
+                            <p>price:</p>
+                            <p className=" bg-green-800 text-white py-1 px-2 rounded-lg text-sm">
+                              ${product.cost}
+                            </p>
+                          </div>
+                          <div className=" flex items-center gap-2">
+                            <p>Available stock:</p>
+                            <p className="  text-lg font-semibold">
+                              {product.amountRemaining}
+                            </p>
+                          </div>
+                          <div className=" flex items-center gap-2">
+                            <p>posted on:</p>
+                            <p className=" ">
+                              {moment(product.createdAt).format("DD MMM YYYY")}
+                            </p>
+                          </div>
+                          <div className=" flex items-center mt-3 gap-4">
+                            <Link
+                              href={`/products/${product.id}`}
+                              className=" px-3 py-2 rounded-lg bg-blue-950 text-white outline-none border-0 cursor-pointer transition-all duration-300 hover:bg-blue-900"
+                            >
+                              View
+                            </Link>
+                            {user && user?.role?.toLowerCase() === "buyer" && (
+                              <div>
+                                {isInCart ? (
+                                  <Link
+                                    href={`/cart`}
+                                    className=" px-3 py-2 rounded-lg bg-orange-500 text-white outline-none border-0 cursor-pointer transition-all duration-300 hover:bg-orange-600"
+                                  >
+                                    Go to cart
+                                  </Link>
+                                ) : (
+                                  <button
+                                    onClick={() => handleAddToCart(product)}
+                                    className=" px-3 py-2 rounded-lg bg-blue-950 text-white outline-none border-0 cursor-pointer transition-all duration-300 hover:bg-blue-900"
+                                  >
+                                    Add to cart
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </section>
     </main>
   );
 }
