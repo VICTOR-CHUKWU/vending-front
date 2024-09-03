@@ -18,7 +18,7 @@ import { ProductPurchasePayload } from "@/types";
 export default function Cart() {
   const { deductCoins } = useUser();
   const {  mutate } = useGetProducts();
-  const { cart, isLoading, removeFromCartItem, increaseQty, decreaseQty, totalCost } = useCart();
+  const { cart, isLoading, removeFromCartItem, increaseQty, decreaseQty, totalCost, removeAllFromCart } = useCart();
   const [actionLoad, setActionLoad] = useState(false);
   const router = useRouter()
 
@@ -41,6 +41,7 @@ export default function Cart() {
       if(resp.success){
         deductCoins(totalCost)
         mutate()
+        removeAllFromCart()
         successToast(resp.message)
         router.push('/')
       }
@@ -70,7 +71,7 @@ export default function Cart() {
         <div className="w-full lg:w-[70%] shrink-0">
           <div className=" bg-white rounded-t-md p-5 mb-4">
             <div className=" text-black font-semibold text-2xl mb-3">
-              Shopping Cart ({cart?.length || 0})
+              Vending Cart ({cart?.length || 0})
             </div>
             <div className=" flex items-center gap-4">
               <div className=" flex items-center gap-2">

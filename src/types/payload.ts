@@ -28,6 +28,7 @@ export interface LoginPayload {
     cost: number;
     amountRemaining: number;
     sellerId: string;
+    productImages?: string[];
   };
 
 

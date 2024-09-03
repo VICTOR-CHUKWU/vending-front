@@ -1,8 +1,10 @@
+/* eslint-disable @next/next/no-img-element */
 'use client'
 
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import Image from "next/image";
 
 import { InlineErr, SmallLoader } from "@/components/shared";
 import { createProductFormSchema, errorToast, successToast } from "@/utils";
@@ -11,12 +13,15 @@ import { createProduct } from "@/services/product";
 import { ProductCreationPayload } from "@/types";
 import { mutate } from "swr";
 import { useRouter } from "next/navigation";
+import { CloudinaryUploadWidget } from "@/components/cloudinary/CloudinaryWidget";
 
 export default function Home() {
   const { user, isLoading } = useUser();
   const router = useRouter()
   const { products, productLoading, mutate } = useGetProducts();
     const [loading, setLoading] = useState(false)
+    const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+
     const {
         control,
         reset,
@@ -32,6 +37,21 @@ export default function Home() {
         },
       });
 
+      const onFinishUpload = (info: any) => {
+        console.log(info, 'info')
+        setUploadedImages((prev) => (
+          [...prev, info.secure_url]
+        ));
+      };
+    
+      const handleRemoveImage = (url: string) => {
+        // Remove from UI
+        setUploadedImages(uploadedImages.filter((img) => img !== url));
+       
+      };
+    
+    
+
       const create = async (data: any) => {
         if(productLoading || isLoading) return
         setLoading(true)
@@ -39,7 +59,9 @@ export default function Home() {
               productName: data.productName,
               cost: data.cost,
               amountRemaining: data.amountRemaining,
-              sellerId: user?.id as string
+              sellerId: user?.id as string,
+              productImages: uploadedImages
+              
             }
             try {
               const resp = await createProduct(payload)
@@ -59,6 +81,25 @@ export default function Home() {
        <div className=" bg-white w-full md:w-2/3 xl:w-1/2 mx-auto p-8 rounded-lg">
             <h3 className=" text-3xl font-semibold mb-6 text-center">Create Product</h3>
             <div>
+            <div className=" cursor-pointer mb-3">
+                <p>Upload product Images</p>
+                
+
+                    <CloudinaryUploadWidget
+                      title={"upload profile picture"}
+                      className="w-100"
+                      onFinish={onFinishUpload}
+                    >
+                    <Image
+                        src={`/img/camera.png`}
+                        alt="profile"
+                        width={50}
+                        height={50}
+                        className=" mix-blend-multiply"
+                      />
+                    </CloudinaryUploadWidget>
+                  </div>
+             
             <form className=" mt-7" onSubmit={handleSubmit(create)}>
             <div className=" grid grid-cols-2 gap-8">
               <label
@@ -121,8 +162,26 @@ export default function Home() {
                 />
                 <InlineErr err={errors?.amountRemaining?.message} />
               </label>
-             
+              
             </div>
+            <div className="flex gap-4 mt-2">
+                    {uploadedImages.map((url) => (
+                      <div key={url} className="relative p-3">
+                        <img
+                          src={url}
+                          alt="Uploaded Image"
+                          className=" w-20 h-20 rounded-full"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(url)}
+                          className="absolute w-5 h-5 top-0 right-0 flex items-center justify-center bg-red-500 text-white p-1 rounded-full"
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    ))}
+                  </div>
 
             <div className=" col-span-2 flex justify-center mt-9 mb-3">
               <button

@@ -42,7 +42,7 @@ export const fetchProduct = async (id: string):Promise<productResponse> => {
 export const fetchPurchase = async (id: string):Promise<purchaseResponse> => {
    
     try {
-        const resp: AxiosResponse<purchaseResponse> = await api.get(`/admin/user/getUserByRole/admin/${id}`)
+        const resp: AxiosResponse<purchaseResponse> = await api.get(`/products/purchases/${id}`)
         return resp.data
     } catch (error: any) {
         throw new Error(error.response)

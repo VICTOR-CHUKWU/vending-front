@@ -85,7 +85,7 @@ const Nav = () => {
     try {
       const resp = await buyCoin(coin, user?.id as string)
       if(resp.success){
-        // updateUser(resp.data)
+        updateUser(resp.data)
         successToast(resp.message)
         setCoinModal(false)
       }

@@ -121,6 +121,13 @@ export const useCart = () => {
     mutate(updatedCart);
   };
 
+  const removeAllFromCart = () => {
+    const updatedCart: TCartItem[] = [];
+    saveCart(updatedCart);
+    mutate(updatedCart);
+  };
+
+
   const totalCost = cart?.reduce((total, item) => total + item.cost * item.qty, 0) || 0;
 
   return {
@@ -132,6 +139,7 @@ export const useCart = () => {
     increaseQty,
     decreaseQty,
     totalCost,
+    removeAllFromCart
   };
 };
 

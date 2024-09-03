@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import { Loader, showAlert, SmallLoader } from "@/components/shared";
 import { useCart, useGetProducts, useUser } from "@/hooks/swrhooks";
@@ -91,24 +92,32 @@ export default function Home() {
                   return (
                     <div key={product.id}>
                       <div className=" transition-all duration-300 hover:shadow-md rounded-lg p-5 bg-white shadow-lg text-black">
-                        <div className=" relative w-full h-40 rounded-lg overflow-hidden mb-2">
-                          <Image
-                            src={`/img/signup.jpg`}
-                            alt="product"
-                            layout="fill"
-                            objectFit="cover"
-                          />
+                        <div className=" relative w-full h-40 flex items-center justify-center rounded-lg overflow-hidden mb-2">
+                          {
+                            product.productImages.length > 0 ? (
+                              <img
+                              src={product.productImages[0]}
+                              alt="Uploaded Image"
+                              className=" w-full h-full rounded-full"
+                            />
+                            )
+                            : (
+                              <div className=" w-full h-full flex items-center justify-center bg-gray-700">
+                                <h2 className=" text-white text-center">No Product Image</h2>
+                              </div>
+                            )
+                          }
                         </div>
                         <div className=" flex flex-col gap-4">
                           <h3 className=" text-xl font-medium">
                             {product.productName}
                           </h3>
-                          <div className=" flex items-center gap-2">
+                          {/* <div className=" flex items-center gap-2">
                             <p>vendor:</p>
                             <p className=" bg-orange-500 text-white py-1 px-2 rounded-lg text-sm">
                               Amaka olinya
                             </p>
-                          </div>
+                          </div> */}
                           <div className=" flex items-center gap-2">
                             <p>price:</p>
                             <p className=" bg-green-800 text-white py-1 px-2 rounded-lg text-sm">

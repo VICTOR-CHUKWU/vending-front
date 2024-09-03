@@ -1,7 +1,19 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
-import { InlineErr, Loader, Modal, showAlert, SmallLoader } from "@/components/shared";
+import {
+  InlineErr,
+  Loader,
+  Modal,
+  showAlert,
+  SmallLoader,
+} from "@/components/shared";
 import { useCart, useGetProducts, useUser } from "@/hooks/swrhooks";
-import { createProduct, deleteProduct, fetchProduct, updateProduct } from "@/services/product";
+import {
+  createProduct,
+  deleteProduct,
+  fetchProduct,
+  updateProduct,
+} from "@/services/product";
 import { ProductCreationPayload, UpdateProductPayload } from "@/types";
 import { TCartItem, TProduct } from "@/types/product";
 import { createProductFormSchema, errorToast, successToast } from "@/utils";
@@ -18,7 +30,6 @@ const sellingPoints = [
   `Easy installation ano operation: The solar panel is easy to install and use, no need to worry about installation. it can be installed in a few seconds without any tools.`,
 ];
 
-const images = ["/img/signup.jpg", "/img/signup.jpg", "/img/signup.jpg"];
 
 export default function Installation({
   params: { id },
@@ -29,14 +40,14 @@ export default function Installation({
   const { products, productLoading, mutate } = useGetProducts();
   const { addToCartItem, cart } = useCart();
 
-  const [productImage, setProductImage] = useState(images[0]);
+  const [productImage, setProductImage] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [isadded, setIsadded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editModal, setEditModal] = useState(false);
   const [isCart, setIsCart] = useState<TCartItem | null>(null);
   const [actionLoad, setActionLoad] = useState(false);
-  const [product, setProduct] = useState<TProduct | null>(null)
+  const [product, setProduct] = useState<TProduct | null>(null);
 
   const {
     control,
@@ -54,61 +65,67 @@ export default function Installation({
   });
 
   const handleAddToCart = () => {
-    if(!product) return
+    if (!product) return;
     addToCartItem({ ...product, qty: quantity });
   };
 
   const handleBuyNow = () => {
-    if(!product) return
+    if (!product) return;
     addToCartItem({ ...product, qty: quantity });
-    router.push('/cart')
-  }
+    router.push("/cart");
+  };
 
   const editProduct = async (data: any) => {
-    if(productLoading || isLoading) return
-    setLoading(true)
-        const payload: UpdateProductPayload = {
-          productName: data.productName,
-          cost: data.cost,
-          amountRemaining: data.amountRemaining,
-        }
-        try {
-          const resp = await updateProduct(payload, id)
-          if(resp.success){
-            setEditModal(false)
-            await getProduct(id)
-            mutate()
-            successToast(resp.message || "updated succesfully")
-          }
-        } catch (error: any) {
-          errorToast("could not update product")
-        }
-  }
+    if (productLoading || isLoading) return;
+    setLoading(true);
+    const payload: UpdateProductPayload = {
+      productName: data.productName,
+      cost: data.cost,
+      amountRemaining: data.amountRemaining,
+    };
+    try {
+      const resp = await updateProduct(payload, id);
+      if (resp.success) {
+        setEditModal(false);
+        await getProduct(id);
+        mutate();
+        successToast(resp.message || "updated succesfully");
+      }
+    } catch (error: any) {
+      errorToast("could not update product");
+    }
+  };
 
   const getProduct = async (id: string) => {
-    setLoading(true)
-        try {
-          const resp = await fetchProduct(id)
-          if(resp.success){
-            setProduct(resp.data)
-            reset({
-              productName: resp.data.productName,
-              cost: resp.data.cost,
-              amountRemaining: resp.data.amountRemaining,
-            });
-          }
-        } catch (error) {
-          console.log(error)
-        }finally{
-          setLoading(false)
+    setLoading(true);
+    try {
+      const resp = await fetchProduct(id);
+      if (resp.success) {
+        setProduct(resp.data);
+        if(resp.data.productImages.length > 0){
+          setProductImage(resp.data.productImages[0])
         }
-  }
-
-  const increaseCount = useCallback((qty: number) => {
-    if (quantity <= qty) {
-      setQuantity((prev) => prev + 1);
+        reset({
+          productName: resp.data.productName,
+          cost: resp.data.cost,
+          amountRemaining: resp.data.amountRemaining,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
-  }, [quantity]);
+  };
+
+  const increaseCount = useCallback(
+    (qty: number) => {
+      if (quantity <= qty) {
+        setQuantity((prev) => prev + 1);
+      }
+    },
+    [quantity]
+  );
 
   const decreaseCount = useCallback(() => {
     if (quantity > 1) {
@@ -116,18 +133,17 @@ export default function Installation({
     }
   }, [quantity]);
 
- 
   const handleDelete = async () => {
-    setActionLoad(true)
+    setActionLoad(true);
     try {
-      const resp = await deleteProduct(id)
-      if(resp.success){
-        mutate()
-        successToast(resp.message)
-        router.push('/')
+      const resp = await deleteProduct(id);
+      if (resp.success) {
+        mutate();
+        successToast(resp.message);
+        router.push("/");
       }
     } catch (error: any) {
-      errorToast('could not delete product');
+      errorToast("could not delete product");
     } finally {
       setActionLoad(false);
     }
@@ -143,120 +159,127 @@ export default function Installation({
       showCancel: true,
       customFunction: handleDelete,
     });
-  }
+  };
 
   useEffect(() => {
-   if(id){
-    getProduct(id)
-   }
-  }, [id])
+    if (id) {
+      getProduct(id);
+    }
+  }, [id]);
 
   useEffect(() => {
     if (product) {
       const isInCart = cart?.find((item) => item.id === product.id);
-     if(isInCart){
-      setIsCart(isInCart);
-      setQuantity(isInCart.qty)
-     }
+      if (isInCart) {
+        setIsCart(isInCart);
+        setQuantity(isInCart.qty);
+      }
     }
   }, [product, cart]);
-  
-if(loading){
-  return(
-    <div className=" h-screen flex items-center flex-col justify-center bg-white">
-    <Loader text="loading product" />
-  </div>
-  )
-}
 
-if(!loading && !product){
-  return(
-    <div className=" h-screen flex items-center flex-col justify-center bg-white">
-    <h3>Something went wrong</h3>
-  </div>
-  )
-}
+  if (loading) {
+    return (
+      <div className=" h-screen flex items-center flex-col justify-center bg-white">
+        <Loader text="loading product" />
+      </div>
+    );
+  }
+
+  if (!loading && !product) {
+    return (
+      <div className=" h-screen flex items-center flex-col justify-center bg-white">
+        <h3>Something went wrong</h3>
+      </div>
+    );
+  }
 
   return (
-   <>
-    <div className=" container pt-40 lg:pt-48 flex flex-col ">
-      <div className=" w-full pl-2">
-        <div className=" w-full  border-b-[1px] border-slate-300 pb-3 flex-col md:flex-row flex justify-between gap-3">
-          <div className=" flex w-full md:w-1/2 shrink-0 gap-2">
-            <div className=" flex flex-col w-auto shrink-0 relative gap-3">
-              {images.map((el, i) => (
-                <span
-                  key={i}
-                  onMouseMove={() => setProductImage(el)}
-                  className=" realtive cursor-pointer"
-                >
-                  <Image src={el} alt="other picture" width={60} height={60} />
-                </span>
-              ))}
-            </div>
-            <div className=" flex-grow h-[10rem] md:h-[14rem] rounded-md overflow-hidden lg:h-[20rem] relative">
-              <Image
-                src={productImage}
-                alt="product picture"
-                layout="fill"
-                objectFit="cover"
-              />
-            </div>
-          </div>
-          <div className=" flex-grow">
-            <h3 className="text-lg lg:text-2xl text-black font-bold">
-              USD {product?.cost}
-            </h3>
-            <p className=" text-xs lg:text-sm text-primary mb-2">
-              USD {product?.cost} each, ≥ 1 piece
-            </p>
-            <p className=" text-xs lg:text-sm text-slate-600 mb-2">
-              Price shown before tax
-            </p>
-
-            <p className=" text-base lg:text-lg text-slate-800 mb-2 font-semibold">
-             {product?.productName}
-            </p>
-
-            <div className=" flex items-center gap-3 border-b-[1px] border-slate-300 pb-2">
-              {/* <Ratings rating={4.2} size="micro" /> */}
-              <div className="text-base text-black">1123 Reviews</div>
-              <div className="text-base text-black border-l-[1px] border-slate-300 pl-2">
-                150 sold
+    <>
+      <div className=" container pt-40 lg:pt-48 flex flex-col ">
+        <div className=" w-full pl-2">
+          <div className=" w-full  border-b-[1px] border-slate-300 pb-3 flex-col md:flex-row flex justify-between gap-3">
+            <div className=" flex w-full md:w-1/2 shrink-0 gap-2">
+              {product && product?.productImages.length > 0 && (
+                <div className=" flex flex-col w-auto shrink-0 relative gap-3">
+                  {product.productImages.map((el, i) => (
+                    <span
+                      key={i}
+                      onMouseMove={() => setProductImage(el)}
+                      className=" realtive cursor-pointer"
+                    >
+                      <img src={el} alt="other picture" className="w-12 h-12" />
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className=" flex-grow h-[10rem] md:h-[14rem] rounded-md overflow-hidden lg:h-[20rem] relative">
+                {product && product.productImages.length > 0 ? (
+                  <img
+                    src={productImage}
+                    alt="Uploaded Image"
+                    className=" w-full h-full rounded-full"
+                  />
+                ) : (
+                  <div className=" w-full h-full flex items-center justify-center bg-gray-700">
+                    <h2 className=" text-white text-center">
+                      No Product Image
+                    </h2>
+                  </div>
+                )}
               </div>
             </div>
+            <div className=" flex-grow">
+              <h3 className="text-lg lg:text-2xl text-black font-bold">
+                USD {product?.cost}
+              </h3>
+              <p className=" text-xs lg:text-sm text-primary mb-2">
+                USD {product?.cost} each, ≥ 1 piece
+              </p>
+              <p className=" text-xs lg:text-sm text-slate-600 mb-2">
+                Price shown before tax
+              </p>
 
-            <div className=" pb-2 mt-2">
-              <div className="text-base text-black font-semibold mb-2">
-                Product sellpoints
+              <p className=" text-base lg:text-lg text-slate-800 mb-2 font-semibold">
+                {product?.productName}
+              </p>
+
+              <div className=" flex items-center gap-3 border-b-[1px] border-slate-300 pb-2">
+                <div className="text-base text-black">1123 Reviews</div>
+                <div className="text-base text-black border-l-[1px] border-slate-300 pl-2">
+                  150 sold
+                </div>
               </div>
-              <ul className=" list-disc pl-4 text-black">
-                {sellingPoints.map((el, i) => (
-                  <li key={i} className=" text-xs lg:text-sm mb-2">
-                    {el}
-                  </li>
-                ))}
-              </ul>
+
+              <div className=" pb-2 mt-2">
+                <div className="text-base text-black font-semibold mb-2">
+                  Product sellpoints
+                </div>
+                <ul className=" list-disc pl-4 text-black">
+                  {sellingPoints.map((el, i) => (
+                    <li key={i} className=" text-xs lg:text-sm mb-2">
+                      {el}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* cart  */}
-      <div className="w-full">
-       {
-        user?.role.toLowerCase() === 'buyer' ? (
-          <div className="w-full md:w-[30rem] bg-white rounded-md p-2">
-          {/* <AddCart /> */}
-          <div className=" bg-white rounded-md p-3 w-full">
-            <h3 className=" font-bold text-black text-xl lg:text-3xl">
-              <span className=" text-base lg:text-lg">USD</span>
-             {product?.cost}
-            </h3>
-            <p className=" text-xs text-slate-500 border-b-[1px] border-slate-300 pb-2">
-              Price shown before tax
-            </p>
-            {/* <div className=" flex items-center bg-yellow-400 bg-opacity-40 gap-2 mt-2">
+        {/* cart  */}
+        <div className="w-full">
+          {user?.role.toLowerCase() === "buyer" ? (
+            <div className="w-full md:w-[30rem] bg-white rounded-md p-2">
+              {/* <AddCart /> */}
+              <div className=" bg-white rounded-md p-3 w-full">
+                <h3 className=" font-bold text-black text-xl lg:text-3xl">
+                  <span className=" text-base lg:text-lg">USD</span>
+                  {product?.cost}
+                </h3>
+                <p className=" text-xs text-slate-500 border-b-[1px] border-slate-300 pb-2">
+                  Price shown before tax
+                </p>
+                {/* <div className=" flex items-center bg-yellow-400 bg-opacity-40 gap-2 mt-2">
               <span className=" bg-yellow-600 text-white text-xs font-semibold rounded-md px-1 py-1">
                 Choice
               </span>
@@ -264,93 +287,107 @@ if(!loading && !product){
                 Alistyle commitment
               </span>
             </div> */}
-            <div className="border-b-[1px] border-slate-300 pb-2">
-             
-              <div className=" flex items-center gap-1 mb-2 mt-2 text-slate-500">
+                <div className="border-b-[1px] border-slate-300 pb-2">
+                  <div className=" flex items-center gap-1 mb-2 mt-2 text-slate-500">
+                    <div>
+                      <h3 className=" text-black mt-0 text-base font-semibold">
+                        {" "}
+                        Security & Privacy{" "}
+                      </h3>
+                      <p className=" text-slate-600 text-xs break-all">
+                        Safe payments: We do not share your personal details
+                        with any third parties without your consent. Secure
+                        personal details: We protect your privacy and keep your
+                        personal details safe and secure.{" "}
+                      </p>
+                    </div>
+                  </div>
+                </div>
                 <div>
-                  <h3 className=" text-black mt-0 text-base font-semibold">
-                    {" "}
-                    Security & Privacy{" "}
+                  <h3 className="text-black text-xl font-semibold mb-1">
+                    Quantity
                   </h3>
-                  <p className=" text-slate-600 text-xs break-all">
-                    Safe payments: We do not share your personal details with
-                    any third parties without your consent. Secure personal
-                    details: We protect your privacy and keep your personal
-                    details safe and secure.{" "}
+                  <div className=" flex items-center gap-2 mb-2">
+                    <span
+                      onClick={decreaseCount}
+                      className=" w-10 h-10 rounded-md bg-slate-200 flex items-center justify-center text-slate-800 font-semibold cursor-pointer"
+                    >
+                      -
+                    </span>
+                    <span className=" w-10 h-10 rounded-md bg-slate-200 flex items-center justify-center text-slate-800 font-semibold">
+                      {quantity}
+                    </span>
+                    <span
+                      onClick={() =>
+                        increaseCount(product?.amountRemaining as number)
+                      }
+                      className=" w-10 h-10 rounded-md bg-slate-200 flex items-center justify-center text-slate-800 font-semibold cursor-pointer"
+                    >
+                      +
+                    </span>
+                  </div>
+                  <p className=" text-slate-600">
+                    {product?.amountRemaining} Pieces remaining
                   </p>
+                </div>
+                <div className=" flex flex-col items-center w-full gap-3 mt-3">
+                  <button
+                    onClick={() => handleBuyNow()}
+                    className=" outline-none border-0 cursor-pointer bg-red-500 text-white w-full h-9 rounded-lg flex items-center justify-center transition-all hover:bg-red-600"
+                  >
+                    Buy now
+                  </button>
+                  {!isCart && (
+                    <button
+                      onClick={() => handleAddToCart()}
+                      className=" outline-none border-0 cursor-pointer bg-orange-500 text-white w-full h-9 rounded-lg flex items-center justify-center transition-all hover:bg-orange-600"
+                    >
+                      Add to cart
+                    </button>
+                  )}
+                  {isCart && (
+                    <Link
+                      href={`/cart`}
+                      className=" outline-none deco border-0 cursor-pointer bg-orange-500 text-white w-full h-9 rounded-lg flex items-center justify-center transition-all hover:bg-orange-600"
+                    >
+                      Go to cart
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
-            <div>
-              <h3 className="text-black text-xl font-semibold mb-1">
-                Quantity
-              </h3>
-              <div className=" flex items-center gap-2 mb-2">
-                <span
-                  onClick={decreaseCount}
-                  className=" w-10 h-10 rounded-md bg-slate-200 flex items-center justify-center text-slate-800 font-semibold cursor-pointer"
-                >
-                  -
-                </span>
-                <span className=" w-10 h-10 rounded-md bg-slate-200 flex items-center justify-center text-slate-800 font-semibold">
-                  {quantity}
-                </span>
-                <span
-                  onClick={() => increaseCount(product?.amountRemaining as number)}
-                  className=" w-10 h-10 rounded-md bg-slate-200 flex items-center justify-center text-slate-800 font-semibold cursor-pointer"
-                >
-                  +
-                </span>
+          ) : (
+            <div className=" flex items-center mt-4 gap-7">
+              <div
+                onClick={() => setEditModal(!editModal)}
+                className=" bg-orange-600 text-white w-52 flex items-center justify-center h-12 rounded-lg cursor-pointer transition-all duration-300 hover:bg-orange-700 border-0"
+              >
+                Update
               </div>
-              <p className=" text-slate-600">{product?.amountRemaining} Pieces remaining</p>
+              <div
+                onClick={() => handleProductDelete()}
+                className=" bg-red-500 text-white w-52 flex items-center justify-center h-12 rounded-lg cursor-pointer transition-all duration-300 hover:bg-red-600 border-0"
+              >
+                {actionLoad ? <SmallLoader /> : "Delete"}
+              </div>
             </div>
-            <div className=" flex flex-col items-center w-full gap-3 mt-3">
-              <button onClick={() => handleBuyNow()} className=" outline-none border-0 cursor-pointer bg-red-500 text-white w-full h-9 rounded-lg flex items-center justify-center transition-all hover:bg-red-600">
-                Buy now
-              </button>
-              {!isCart && (
-                <button
-                  onClick={() => handleAddToCart()}
-                  className=" outline-none border-0 cursor-pointer bg-orange-500 text-white w-full h-9 rounded-lg flex items-center justify-center transition-all hover:bg-orange-600"
-                >
-                  Add to cart
-                </button>
-              )}
-              {isCart && (
-                <Link
-                  href={`/cart`}
-                  className=" outline-none deco border-0 cursor-pointer bg-orange-500 text-white w-full h-9 rounded-lg flex items-center justify-center transition-all hover:bg-orange-600"
-                >
-                  Go to cart
-                </Link>
-              )}
-            </div>
-          </div>
+          )}
         </div>
-        )
-        : (
-          <div className=" flex items-center mt-4 gap-7">
-              <div onClick={() => setEditModal(!editModal)} className=" bg-orange-600 text-white w-52 flex items-center justify-center h-12 rounded-lg cursor-pointer transition-all duration-300 hover:bg-orange-700 border-0">Update</div>
-              <div onClick={() => handleProductDelete()} className=" bg-red-500 text-white w-52 flex items-center justify-center h-12 rounded-lg cursor-pointer transition-all duration-300 hover:bg-red-600 border-0">
-                {
-                  actionLoad ? <SmallLoader /> : 'Delete'
-                }
-              </div>
-          </div>
-        )
-       }
       </div>
-    </div>
 
-    <Modal closeModal={() => setEditModal(!editModal)} isOpen={editModal} header={`Edit ${product?.productName}`}>
-      <div>
-      <form className=" mt-7" onSubmit={handleSubmit(editProduct)}>
+      <Modal
+        closeModal={() => setEditModal(!editModal)}
+        isOpen={editModal}
+        header={`Edit ${product?.productName}`}
+      >
+        <div>
+          <form className=" mt-7" onSubmit={handleSubmit(editProduct)}>
             <div className=" grid grid-cols-2 gap-8">
               <label
                 className=" col-span-2 flex flex-col text-slate-600 w-full text-lg font-medium gap-1"
                 htmlFor=""
               >
-                  Product Name
+                Product Name
                 <Controller
                   control={control}
                   name="productName"
@@ -370,7 +407,7 @@ if(!loading && !product){
                 className=" col-span-2 flex flex-col text-slate-600 w-full text-lg font-medium gap-1"
                 htmlFor=""
               >
-                  Product Cost
+                Product Cost
                 <Controller
                   control={control}
                   name="cost"
@@ -390,7 +427,7 @@ if(!loading && !product){
                 className=" col-span-2 flex flex-col text-slate-600 w-full text-lg font-medium  gap-1"
                 htmlFor=""
               >
-                 Number of Available Stock
+                Number of Available Stock
                 <Controller
                   control={control}
                   name="amountRemaining"
@@ -406,7 +443,6 @@ if(!loading && !product){
                 />
                 <InlineErr err={errors?.amountRemaining?.message} />
               </label>
-             
             </div>
 
             <div className=" col-span-2 flex justify-center mt-9 mb-3">
@@ -418,8 +454,8 @@ if(!loading && !product){
               </button>
             </div>
           </form>
-      </div>
-    </Modal>
-   </>
+        </div>
+      </Modal>
+    </>
   );
 }
