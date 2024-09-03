@@ -11,11 +11,12 @@ export const CloudinaryUploadWidget = ({
     [key: string]: any;
   }) => {
     const [resource, setResource] = useState<string | undefined>('');
+    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
     return (
         <CldUploadWidget
           options={{
-            uploadPreset: 'victor',
+            uploadPreset,
             cropping: true, 
             croppingAspectRatio: 1,
             showSkipCropButton: true,
@@ -26,7 +27,6 @@ export const CloudinaryUploadWidget = ({
           onSuccess={(result, { widget }) => {
             setResource(result?.info as string); 
             onFinish(result.info);
-            // Manually control closing if needed
           }}
           onQueuesEnd={(result, { widget }) => {
             // Manually control closing if needed
