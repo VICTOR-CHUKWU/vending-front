@@ -11,7 +11,7 @@ export const CloudinaryUploadWidget = ({
     [key: string]: any;
   }) => {
     const [resource, setResource] = useState<string | undefined>('');
-    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'victor';
 
     return (
         <CldUploadWidget
